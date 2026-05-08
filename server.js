@@ -1,40 +1,81 @@
+const express = require("express");
+const app = express();
+
+const dataModule = require("./modules");
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Home Page
 app.get("/", (req, res) => {
-  res.send("<h1>Task List</h1>");
+  const tasks = dataModule.getTasks();
+
+  let html = `
+    <h1>Task List</h1>
+
+    <form method="POST" action="/tasks">
+      <input type="text" name="task" placeholder="Enter task" required>
+      <button type="submit">Add Task</button>
+    </form>
+
+    <hr>
+  `;
+
+  tasks.forEach(task => {
+    html += `
+      <div>
+        <p>
+          <strong>${task.task}</strong>
+          - Completed: ${task.completed}
+        </p>
+      </div>
+    `;
+  });
+
+  res.send(html);
 });
 
-app.get("/add", (req, res) => {
-  res.send("<form method='POST' action='/tasks'>...</form>");
-});
-
-
-const dataModule = require("./modules/dataModule");
-
+// Get all tasks
 app.get("/tasks", (req, res) => {
   res.json(dataModule.getTasks());
 });
 
+// Create task
 app.post("/tasks", (req, res) => {
-  res.json(dataModule.createTask(req.body.task));
+  const task = req.body.task;
+
+  if (!task) {
+    return res.status(400).send("Task is required");
+  }
+
+  const newTask = dataModule.createTask(task);
+
+  res.redirect("/");
 });
 
+// Update task
 app.put("/tasks/:id", (req, res) => {
-  dataModule.updateTask(req.params.id, req.body.task);
-  res.send("Updated");
+  const updated = dataModule.updateTask(
+    req.params.id,
+    req.body.task
+  );
+
+  if (!updated) {
+    return res.status(404).send("Task not found");
+  }
+
+  res.send("Task updated");
 });
 
+// Delete task
 app.delete("/tasks/:id", (req, res) => {
-  dataModule.deleteTask(req.params.id);
-  res.send("Deleted");
-});
+  const deleted = dataModule.deleteTask(req.params.id);
 
+  if (!deleted) {
+    return res.status(404).send("Task not found");
+  }
 
-
-const express = require("express");
-const app = express();
-app.use(express.json());
-
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+  res.send("Task deleted");
 });
 
 app.listen(3000, () => {

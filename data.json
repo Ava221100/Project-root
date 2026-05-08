@@ -1,8 +1,12 @@
 [
-    {
-        "id": 1, "task": "Do Homework", "completed": false
-     },
-     {
-        "id": 2, "task": "Buy Groceries", "completed": true
-    }
+  {
+    "id": 1,
+    "task": "Do Homework",
+    "completed": false
+  },
+  {
+    "id": 2,
+    "task": "Buy Groceries",
+    "completed": true
+  }
 ]
